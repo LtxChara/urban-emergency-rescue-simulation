@@ -165,7 +165,7 @@ python main.py --strategy dqn --load_model_path checkpoints/dqn_final_trained_ep
 - **`DEFAULT_RESCUER_TYPES`**：修改救援者原型（速度、工作效率、疲劳阈值、人数配比）。
 - **`max_rescuers_map`**：修改每个任务规模可同时派遣的救援者人数上限。
 
-如需进行强化学习研究，可通过命令行参数或在 `single_agent.py` / `multi_agent.py` 中直接调整奖励系数和网络超参数。
+如需进行强化学习研究，可通过命令行参数或在 `single_agent.py` / `multi_agent.py` 中直接调整参数。
 
 ----
 
