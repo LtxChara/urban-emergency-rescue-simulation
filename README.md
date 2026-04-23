@@ -1,208 +1,196 @@
-# Urban Earthquake Emergency Rescue Simulation System
-
 # 城市地震紧急救援仿真系统
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-%3E%3D2.5.1-EE4C2C)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A discrete-event simulation framework for urban earthquake emergency response, featuring multiple scheduling strategies (rule-based and RL-based) and an optional real-time Tkinter GUI.
+> 一个基于离散事件驱动的城市地震紧急救援仿真框架，支持多种调度策略（基于规则与基于强化学习）以及可选的实时 Tkinter 图形界面。
 
-这是一个基于离散事件驱动的城市地震紧急救援仿真框架，支持多种调度策略（基于规则与基于强化学习）以及可选的实时 Tkinter 图形界面。
+----
 
-![地震救援仿真页面](pic/homepage.png)
+## 目录
 
-
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Scheduling Strategies](#scheduling-strategies)
-- [Project Structure](#project-structure)
-- [Customization](#customization)
-- [License](#license)
+- [核心功能](#核心功能)
+- [截图预览](#截图预览)
+- [项目结构](#项目结构)
+- [环境安装](#环境安装)
+- [快速开始](#快速开始)
+- [调度策略](#调度策略)
+- [许可证](#许可证)
 
 ---
 
-## Features
+## 核心功能
 
-- **Discrete-Event Simulation Core**Event-driven engine with a priority queue (`TASK_ARRIVAL`, `RESCUER_ARRIVAL`, `TASK_COMPLETED`, `FATIGUE_RECOVERY`).
-- **Multi-Type Rescuer Model**Three archetypes with distinct speed, work rate, skills, and fatigue mechanics:
-
-  - **Medical Team**: fast response, moderate work rate, fatigue threshold 160.
-  - **Engineering Unit**: slow but powerful (work rate 1.5), heavy machinery, fatigue threshold 130.
-  - **Search & Logistics**: highest speed (1.0 km/min), best endurance, fatigue threshold 200.
-- **Dynamic Task Model**Tasks vary in scale (`small`, `medium`, `large`, `extra_large`) with:
-
-  - Time-decaying urgency (linear or exponential).
-  - Role-based collaboration requirements.
-  - Workload measured in person-minutes.
-- **Scheduling Strategies**
-
-  - `nearest`: Greedy distance minimization.
-  - `urgent`: Greedy urgency-per-time-budget maximization.
-  - `hybrid`: Weighted score combining distance, urgency, and workload.
-  - `dqn`: Single-agent Deep Q-Network.
-  - `qmix`: Multi-agent QMIX.
-- **Real-Time GUI**Tkinter + Matplotlib visualization showing city map, stations, rescuers, and tasks.
-- **Reproducibility**
-  Seeded RNGs for Python, NumPy, and PyTorch.
+- **离散事件仿真核心**：基于优先队列的事件驱动引擎，事件类型包括任务到达、救援者到达、任务完成等。
+- **多类型救援者模型**：三种具有不同速度、工作效率、技能和疲劳机制的原型：
+  - **医疗组**：响应快，工作效率中等。
+  - **工程队**：速度慢但力量大，操作重型机械。
+  - **搜救与后勤**：速度最快，耐力最佳。
+- **动态灾情任务模型**：任务按规模分为 `small`、`medium`、`large`、`extra_large`，具有：
+  - 随时间衰减的紧急度（线性或指数衰减）。
+  - 基于角色槽位的协作需求。
+  - 以人 · 分钟为单位的工作量。
+- **调度策略**：
+  - `nearest`：贪心距离最小化。
+  - `urgent`：基于灾情规模的贪心优先级调度。
+  - `hybrid`：综合距离、紧急度和工作量的加权评分。
+  - `dqn`：单智能体深度 Q 网络。
+  - `qmix`：多智能体 QMIX。
+- **实时图形界面**：基于 Tkinter + Matplotlib 的可视化，展示城市地图、救援站、救援者和任务分布。
 
 ---
 
-## Installation
+## 截图预览
 
-1. **Clone the repository**
+**仿真系统页面**：
+
+<div align="center">
+  <img src="pic/homepage.png" width="90%">
+</div>
+
+---
+
+## 项目结构
+
+```
+.
+├── main.py              # 入口文件：命令行参数解析、种子固定、训练循环
+├── simulator.py         # 离散事件仿真核心
+├── tasks.py             # 灾情任务模型与紧急度衰减逻辑
+├── rescuers.py          # 救援者模型、技能与疲劳机制
+├── schedulers.py        # 调度器基类与调度策略封装
+├── single_agent.py      # DQNAgent 实现
+├── multi_agent.py       # QMIXAgent 实现
+├── visualization.py     # Tkinter + Matplotlib 实时图形界面
+├── requirements.txt     
+├── pic/                 # 静态资源（地图、救援站图标）
+│   ├── map.jpg
+│   └── station.jpg
+├── checkpoints/         # 强化学习模型参数权重
+└── README.md           
+```
+
+---
+
+## 环境安装
+
+1. **克隆仓库**
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/urban-emergency-rescue-simulation.git
+git clone https://github.com/Ltx-Leif/urban-emergency-rescue-simulation.git
 cd urban-emergency-rescue-simulation
 ```
 
-2. **Create a virtual environment (recommended)**
+2. **创建虚拟环境（推荐）**
 
 ```bash
 conda create -n urbanSim python=3.10
 conda activate urbanSim
 ```
 
-3. **Install dependencies**
+3. **安装依赖**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-> **Note on PyTorch**: The `requirements.txt` pins core packages. If you need a specific CUDA version or are on a different platform, install PyTorch manually following the [official guide](https://pytorch.org/get-started/locally/).
+> **PyTorch 安装说明**：`requirements.txt` 中固定了核心依赖包版本。如果你需要特定的 CUDA 版本或在其他平台上运行，请按照 [PyTorch 官方指南](https://pytorch.org/get-started/locally/) 手动安装。
 
 ---
 
-## Quick Start
+## 快速开始
 
-### 1. CLI Simulation
+### 1. 命令行仿真
 
-Run a basic simulation with the `nearest` strategy:
+使用 `nearest` 策略运行基础仿真：
 
 ```bash
 python main.py --strategy nearest
 ```
 
-Run with a custom arrival rate and more rescuers:
+自定义任务到达率和救援者数量：
 
 ```bash
 python main.py --strategy urgent --num_rescuers 50 --lambda_rate 0.12 --time 480
 ```
 
-### 2. Launch GUI
+### 2. 启动图形界面
 
 ```bash
 python main.py --gui
 ```
 
-You can also set a fixed seed for reproducible visualizations:
+也可以设置固定种子以获得可复现的可视化效果：
 
 ```bash
 python main.py --gui --seed_choice fixed --seed_value 42
 ```
 
-### 3. Train RL Agents
+### 3. 训练强化学习智能体
 
-Train a DQN agent for 500 episodes:
+训练 DQN 智能体 500 轮：
 
 ```bash
 python main.py --strategy dqn --train_episodes 500
 ```
 
-Train a QMIX multi-agent:
+训练 QMIX 多智能体：
 
 ```bash
 python main.py --strategy qmix --train_episodes 500
 ```
 
-Trained models are saved to the `checkpoints/` directory (e.g. `checkpoints/dqn_final_trained_ep500.pth`).
-
-### 4. Evaluate a Trained Model
+### 4. 评估已训练模型
 
 ```bash
 python main.py --strategy dqn --load_model_path checkpoints/dqn_final_trained_ep500.pth --eval_mode
 ```
 
-### Common CLI Arguments
+------
 
-| Argument                | Default         | Description                                                                |
-| ----------------------- | --------------- | -------------------------------------------------------------------------- |
-| `--strategy`          | `nearest`     | Scheduling strategy:`nearest`, `urgent`, `hybrid`, `dqn`, `qmix` |
-| `--time`              | `480`         | Simulation duration in minutes (default = 8 hours)                         |
-| `--num_rescuers`      | `40`          | Total number of rescuers                                                   |
-| `--lambda_rate`       | `0.08`        | Poisson task arrival rate (tasks/minute)                                   |
-| `--seed_choice`       | `fixed`       | `random` (time-based) or `fixed`                                       |
-| `--seed_value`        | `415`         | Fixed random seed                                                          |
-| `--gui`               | `False`       | Enable the Tkinter GUI                                                     |
-| `--train_episodes`    | `0`           | RL training episodes (>0 enables training)                                 |
-| `--save_model_prefix` | `checkpoints` | Directory to save trained models                                           |
-| `--load_model_path`   | `None`        | Path to a pre-trained model for evaluation or continued training           |
+## 调度策略
 
----
+| 策略 | 类型 | 说明 |
+| --- | --- | --- |
+| `nearest` | 基于规则 | 为空闲救援者分配距离最近的可用任务。 |
+| `urgent` | 基于规则 | 按灾情规模降序贪心选择任务（extra_large > large > medium > small），同规模下选距离近的。非抢占式。 |
+| `hybrid` | 基于规则 | 将距离、紧急度和工作量综合为单一加权评分。 |
+| `dqn` | 基于强化学习 | 单智能体深度 Q 网络，从状态向量中学习任务选择策略。 |
+| `qmix` | 基于强化学习 | 多智能体 QMIX，通过集中式混合网络与分散式策略协调所有救援者。 |
 
-## Scheduling Strategies
+你可以通过编辑 `main.py` 来调整仿真参数：
 
-| Strategy    | Type       | Description                                                                                        |
-| ----------- | ---------- | -------------------------------------------------------------------------------------------------- |
-| `nearest` | Rule-based | Assigns the closest available task to an idle rescuer.                                             |
-| `urgent`  | Rule-based | Ranks tasks by**urgency at arrival / (travel + solo remaining work + 0.1)**. Non-preemptive. |
-| `hybrid`  | Rule-based | Combines distance, urgency, and workload into a single weighted score.                             |
-| `dqn`     | RL-based   | Single-agent Deep Q-Network that learns a task-selection policy from state vectors.                |
-| `qmix`    | RL-based   | Multi-agent QMIX that coordinates all rescuers via a centralized mixer and decentralized policies. |
+- **`DEFAULT_SCALE_CONFIG`**：调整各任务规模的紧急度范围、衰减率和工作量范围。
+- **`DEFAULT_RESCUER_TYPES`**：修改救援者原型（速度、工作效率、疲劳阈值、人数配比）。
+- **`max_rescuers_map`**：修改每个任务规模可同时派遣的救援者人数上限。
 
----
+如需进行强化学习研究，可通过命令行参数或在 `single_agent.py` / `multi_agent.py` 中直接调整奖励系数和网络超参数。
 
-## Project Structure
+----
+
+## 许可证
+
+本项目基于 [MIT License](LICENSE) 开源，你可以自由学习、修改和分发。
 
 ```
-.
-├── main.py              # Entry point: CLI args, seeding, training loops
-├── simulator.py         # Discrete-event simulation core (EmergencySimulator)
-├── tasks.py             # EmergencyTask model and urgency decay logic
-├── rescuers.py          # Rescuer model, skills, and fatigue mechanics
-├── schedulers.py        # Scheduler base + nearest / urgent / hybrid / DQN / QMIX wrappers
-├── single_agent.py      # DQNAgent implementation
-├── multi_agent.py       # QMIXAgent implementation
-├── visualization.py     # Tkinter + Matplotlib real-time GUI
-├── requirements.txt     # Python dependencies
-├── pic/                 # Static assets (map.jpg, station.jpg)
-│   ├── map.jpg
-│   └── station.jpg
-├── checkpoints/         # Saved RL models (generated at runtime)
-├── CLAUDE.md            # Internal codebase documentation for contributors
-└── README.md            # This file
+MIT License
+
+Copyright (c) 2026 Tianxiang Li
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 ```
 
 ---
 
-## Customization
-
-You can tune the simulation by editing `main.py`:
-
-- **`DEFAULT_SCALE_CONFIG`**: Adjust urgency ranges, decay rates, and workload ranges for each task scale.
-- **`DEFAULT_RESCUER_TYPES`**: Modify rescuer archetypes (speed, work rate, fatigue thresholds, count ratios).
-- **`max_rescuers_map`**: Change the hard cap on how many rescuers can be assigned to each task scale.
-
-For RL research, reward coefficients and network hyperparameters can be adjusted via CLI arguments or directly in `single_agent.py` / `multi_agent.py`.
-
----
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-Feel free to use, modify, and share it for educational and research purposes.
-
----
-
-## Acknowledgements
-
-This project was originally developed as a Data Structure course project. It is now open-sourced in the hope that future students and programming enthusiasts can learn from it or build upon it.
-
-If you find this project helpful, please consider giving it a star.
+> 如果你在学习过程中有任何问题，欢迎提交 [Issue](https://github.com/[YourUsername]/MusicPlayer4/issues) 或 [Pull Request](https://github.com/[YourUsername]/MusicPlayer4/pulls)。祝你学习愉快！
+>
+> ⭐ 如果这个项目对你有帮助，欢迎 Star 支持！
